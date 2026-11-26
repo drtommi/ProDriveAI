@@ -1,0 +1,36 @@
+# Local runtimes and build products
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+build/
+dist/
+coverage/
+*.egg-info/
+
+# Local configuration and credentials
+.env
+.env.*
+.npmrc
+.pypirc
+.codex/
+.aws/
+.ssh/
+tunnel-settings.xml
+tunnel-client/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local data, logs, editor settings and OS metadata
+logs/
+*.log
+*.sqlite*
+.pytest_cache/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

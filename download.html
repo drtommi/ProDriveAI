@@ -1,0 +1,40 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>ProDriveAI download</title>
+<button hidden>Download original file</button><span role="status"></span>
+<script>
+const button = document.querySelector('button');
+function render() {
+  const file = window.openai?.toolResponseMetadata;
+  if ((!file?.ticket && typeof file?.blob !== 'string') || typeof file?.name !== 'string') return;
+  button.hidden = false;
+  button.textContent = 'Download ' + file.name;
+  button.onclick = async () => {
+    button.disabled = true;
+    const status = document.querySelector('[role=status]');
+    try {
+    const decode = value => Uint8Array.from(atob(value), c => c.charCodeAt(0));
+    const bytes = [];
+    if (file.ticket) {
+      let size = 0;
+      for (let index = 0; index < file.parts; index++) {
+        status.textContent = 'Loading part ' + (index + 1) + ' of ' + file.parts;
+        const result = await window.openai.callTool('read_file_part', {ticket:file.ticket, index});
+        if (result.isError || !result.content?.[0]?.text) throw Error();
+        const part = decode(result.content[0].text);
+        bytes.push(part);
+        size += part.length;
+      }
+      if (size !== file.size) throw Error();
+    } else {
+      bytes.push(decode(file.blob));
+    }
+    const url = URL.createObjectURL(new Blob(bytes, {type:'application/octet-stream'}));
+    const a = document.createElement('a');
+    a.href = url; a.download = file.name; a.click();
+    status.textContent = '';
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch { status.textContent = 'Download interrupted. Request the file again.'; }
+    finally { button.disabled = false; }
+  };
+}
+window.addEventListener('openai:set_globals', render); render();
+</script></html>
